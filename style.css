@@ -731,6 +731,10 @@ xclip
 	position: relative;
 	z-index: 1;
 }
+.icon-image{
+    width: 60px;
+	height: 60px;
+}
 .services-inner-box h2{
 	font-size: 22px;
 	font-weight: 500;
