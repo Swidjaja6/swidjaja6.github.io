@@ -627,6 +627,8 @@ xclip
     font-size: 18px;
     line-height: 33px;
     margin: 0;
+    max-width: 50%;
+    margin: 0 auto;
 }
 
 .section-title h3 {
@@ -636,6 +638,28 @@ xclip
     margin: 0 0 25px;
     padding: 0;
     text-transform: none;
+}
+.section-title.project-text h3,
+.section-title.project-text p,
+.section-title.project-text ul {
+    text-align: left;
+    max-width: 700px;
+    margin-left: auto;
+    margin-right: auto;
+    margin-bottom: 20px;
+}
+
+.section-title.project-text ul {
+    list-style: disc outside;
+    padding-left: 20px;
+}
+
+.section-title.project-text li {
+    list-style: disc outside;
+    color: #999;
+    font-weight: 400;
+    font-size: 18px;
+    line-height: 33px;
 }
 
 .section.colorsection p,
