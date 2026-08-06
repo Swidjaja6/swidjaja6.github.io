@@ -9,26 +9,25 @@
 <meta name="viewport" content="width=device-width, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no">
 
 <!-- Site Metas -->
-<title>Sean's Lab - Metrics</title>
+<title>Sean's Lab - Home Lab Server</title>
 <meta name="keywords" content="">
 <meta name="description" content="">
 <meta name="author" content="">
 
 <!-- Site Icons -->
-<link rel="shortcut icon" href="images/wifi-router.ico" type="image/x-icon" />
-<link rel="apple-touch-icon" href="images/wifi-router.png">
+<link rel="shortcut icon" href="/images/wifi-router.ico" type="image/x-icon" />
+<link rel="apple-touch-icon" href="/images/wifi-router.png">
 
 <!-- Bootstrap CSS -->
-<link rel="stylesheet" href="css/bootstrap.min.css">
+<link rel="stylesheet" href="/css/bootstrap.min.css">
 <!-- Site CSS -->
-<link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="/css/style.css">
 <!-- Responsive CSS -->
-<link rel="stylesheet" href="css/responsive.css">
+<link rel="stylesheet" href="/css/responsive.css">
 <!-- Custom CSS -->
-<link rel="stylesheet" href="css/custom.css">
-<link rel="stylesheet" href="css/all.css">
+<link rel="stylesheet" href="/css/custom.css">
 
-<script src="js/modernizr.js"></script> <!-- Modernizr -->
+<script src="/js/modernizr.js"></script> <!-- Modernizr -->
 
 <!--[if lt IE 9]>
     <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
@@ -53,8 +52,8 @@
     <!-- Navigation -->
     <nav class="navbar navbar-expand-lg navbar-dark fixed-top" id="mainNav">
         <div class="container">
-            <a class="navbar-brand js-scroll-trigger" href="index.html">
-                <img class="img-fluid" src="images/logo.png" alt="" />
+            <a class="navbar-brand js-scroll-trigger" href="/">
+                <img class="img-fluid" src="/images/logo.png" alt="" />
             </a>
             <button class="navbar-toggler navbar-toggler-right" type="button" data-toggle="collapse"
                 data-target="#navbarResponsive" aria-controls="navbarResponsive" aria-expanded="false"
@@ -65,19 +64,19 @@
             <div class="collapse navbar-collapse" id="navbarResponsive">
                 <ul class="navbar-nav text-uppercase ml-auto">
                     <li class="nav-item">
-                        <a class="nav-link js-scroll-trigger" href="index.html#home">Home</a>
+                        <a class="nav-link js-scroll-trigger" href="/">Home</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link js-scroll-trigger" href="index.html#about">About Me</a>
+                        <a class="nav-link js-scroll-trigger" href="/#about">About Me</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link js-scroll-trigger" href="index.html#certifications">Certifications</a>
+                        <a class="nav-link js-scroll-trigger" href="/#certifications">Certifications</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link js-scroll-trigger" href="projects.html">Projects</a>
+                        <a class="nav-link js-scroll-trigger" href="/projects/">Projects</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link js-scroll-trigger" href="index.html#contact">Contact Me</a>
+                        <a class="nav-link js-scroll-trigger" href="/#contact">Contact Me</a>
                     </li>
                 </ul>
             </div>
@@ -86,7 +85,7 @@
 
     <div id="home" class="ct-header ct-header--slider ct-slick-custom-dots">
         <div class="ct-slick-homepage" data-arrows="true" data-autoplay="false">
-            <div class="ct-header tablex item" data-background="uploads/banner-04.jpg">
+            <div class="ct-header tablex item" data-background="/uploads/banner-04.jpg">
                 <div class="ct-u-display-tablex">
                     <div class="inner">
                         <div class="container">
@@ -114,8 +113,8 @@
                     even outside of my LAN.
                 </p>
                 <p>Hosting a Proxmox server also allowed me to play around with Windows Server 2025, as I wanted to learn how to use Active Directory
-                    and use its DHCP services to lease IP addresses to other machines on my server. As time went on, I discovered other services and features of Proxmox and 
-                    used it to run other services, such as Cisco Modeling Labs to practice my network building skills after I passed my CCNA.
+                    and use its DHCP services to lease IP addresses to other machines on my hypervisor. In addition, I used Ansible playbooks to manage my server
+                    and practice IaC principles.
                 </p>
             </div>
         </div>
@@ -124,9 +123,57 @@
                 <h3>Objectives</h3>
                 <ul>
                     <li>Install Proxmox on a used laptop and open the web UI on another machine</li>
-                    <li>Install and run Windows Server 2022 and a Kali Linux Machine</li>
-                    <li>Run Cisco Modeling Labs to further my networking knowledge and practice network automation</li>
+                    <li>Run Windows Server 2022 and configure Active Directory</li>
+                    <li>Configure Prometheus and Grafana to monitor my Proxmox server</li>
+                    <li>Use Ansible playbooks to automate management of my server and replicate IaC pipelines</li>
                 </ul>
+            </div>
+        </div>
+        <div class="container">
+            <div class="section-title text-center project-text">
+                <h3>The Process</h3>
+                <h4>Step 1: Installation and running VMs</h4>
+                    <p>
+                    Once I got my hands on a spare laptop, I downloaded an instance of Proxmox and installed it using a flash drive.
+                    I also got an ISO of two Operating Systems being Windows Server 2022 and Kali Linux. Once I started running the VMs, 
+                    I wanted to apply some of the concepts that I learned from studying for the CCNA.
+                    </p>
+                <h4>Step 2: Configuring Windows Server 2022 and Kali Linux</h4>
+                    <p>
+                    After starting up my instance of Windows Server, I installed DHCP services and created a second network bridge and put my Kali Linux instance
+                    on that bridge. A Proxmox bridge essentially acts as a Layer 2 Switch in my setup, so having two of them separates my devices by Data Link Layer.
+                    I put both network bridges in my Windows server and I set up DHCP services on it. I was able to get it to run, and after setting the scope and authorizing it,
+                    my Kali Linux device was able to get an IP address from my Windows Server and it could ping the internet. I downloaded and installed an instance of Ubuntu 
+                    and tested it there as well, and it received the IP address next in the lease lineup. 
+                    </p>
+                <h4>Step 3: Running Prometheus and Grafana for remote monitoring</h4>
+                    <p>
+                    By this point I wanted a way to monitor my server remotely without having to log into the Web UI itself. In my volunteer work for setting up networks, one of my 
+                    tasks was to have our nodes set up with a cloud-init, and in that cloud-init I added a Prometheus-node-exporter package to
+                    allow for our servers to extract information. That gave me the idea to install Prometheus and Grafana for monitoring my server. 
+                    </p>
+                    <p>
+                    By this point I wanted a way to monitor my server remotely without having to log into the Web UI itself. In my volunteer work for setting up networks, one of my 
+                    tasks was to have our nodes set up with a cloud-init, and in that cloud-init I added a Prometheus-node-exporter package to
+                    allow for our servers to extract information. That gave me the idea to install Prometheus and Grafana for monitoring my server. 
+                    </p>
+            </div>
+        </div>
+        <div class="container">
+            <div class="section-title text-center project-text">
+                <h3>Challenges and Solutions</h3>
+                <h4>Issue 1: DHCP Leasing not working</h4>
+                <p>
+                    When I first tested whether my Kali Linux machine could get an IP address after setting up DHCP on my Windows server, it could not get an IP address.
+                    I looked on my Windows instance to find out why it wasn't leasing addresses until I learned that I needed to authorize my server. By default
+                    the DHCP server is not authorized until I manually do so in Active Directory. I simply turned it on and it started leasing IPs to my Proxmox VMs. 
+                </p>
+            </div>
+        </div>
+        <div class="container">
+            <div class="section-title text-center project-text">
+                <h3>What I learned</h3>
+
             </div>
         </div>
     </div>
@@ -168,15 +215,14 @@
     <a href="#" id="scroll-to-top" class="dmtop global-radius"><i class="fa fa-angle-up"></i></a>
 
     <!-- ALL JS FILES -->
-    <script src="js/all.js"></script>
-    <script src="js/jquery.mobile.customized.min.js"></script>
-    <script src="js/jquery.easing.1.3.js"></script>
-    <script src="js/parallaxie.js"></script>
-    <script src="js/slick.min.js"></script>
-    <script src="js/animated-slider.js"></script>
-    <script src="js/jqBootstrapValidation.js"></script>
-    <script src="js/custom.js"></script>
-    <script src="js/metrics.js"></script>
+    <script src="/js/all.js"></script>
+    <script src="/js/jquery.easing.1.3.js"></script>
+    <script src="/js/parallaxie.js"></script>
+    <script src="/js/slick.min.js"></script>
+    <script src="/js/animated-slider.js"></script>
+    <script src="/js/jqBootstrapValidation.js"></script>
+    <script src="/js/custom.js"></script>
+    <script src="/js/metrics.js"></script>
 
 </body>
 
