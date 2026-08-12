@@ -1,6 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
 
+<head>
+
 <!-- Basic -->
 <meta charset="utf-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -10,9 +12,9 @@
 
 <!-- Site Metas -->
 <title>Sean's Lab - Personal Website</title>
-<meta name="keywords" content="">
-<meta name="description" content="">
-<meta name="author" content="">
+<meta name="description" content="How I moved this site from GitHub Pages to an Nginx container on Kubernetes, 
+with a GitHub Actions deploy pipeline and live Prometheus metrics from my home lab.">
+<meta name="author" content="Sean Widjaja">
 
 <!-- Site Icons -->
 <link rel="shortcut icon" href="/images/wifi-router.ico" type="image/x-icon" />
@@ -85,7 +87,7 @@
 
     <div id="home" class="ct-header ct-header--slider ct-slick-custom-dots">
         <div class="ct-slick-homepage" data-arrows="true" data-autoplay="false">
-            <div class="ct-header tablex item" data-background="/uploads/banner-04.jpg">
+            <div class="ct-header tablex item" data-background="/uploads/banner.jpg">
                 <div class="ct-u-display-tablex">
                     <div class="inner">
                         <div class="container">
@@ -106,24 +108,27 @@
         <div class="container">
             <div class="section-title text-center project-text">
                 <h3>Project Overview</h3>
-                <p>You are on this website now. My personal site was initially some static pages hosted on Github pages. 
+                <p>
+                    You are on this website now. My personal site was initially some static pages hosted on Github pages. 
                     It worked, but I felt that I could host it somewhere else while also learning about how most websites 
                     are hosted nowadays, especially when most of them are not static. 
                 </p>
-                <p>The first version was just HTML and CSS from a template served by Github pages with a couple links to my 
-                    online profiles. I have rebuilt it to be a container running on Kubernetes in Amazon Web Services, 
-                    with a Prometheus service scraping both the cluster it is running on and my Proxmox server running where 
-                    I am at. I have set up my site to display metrics via direct calls with Rest API and to my personal 
-                    computers with Grafana running in Docker containers. </p>
+                <p>
+                    The site is now an Nginx container running on a Kubernetes cluster in Linode, built and deployed by a GitHub Actions 
+                    pipeline on every push to main. A Prometheus instance in the cluster scrapes both the cluster itself and my Proxmox home
+                    lab server, which sits behind Tailscale rather than being exposed to the internet. The page you are on queries 
+                    Prometheus over its HTTP API and renders those numbers live — the results are on my 
+                    <a href="/projects/home-lab-server/">Home Lab Server</a> project page.
+                </p>
             </div>
         </div>
         <div class="container">
             <div class="section-title text-center project-text">
                 <h3>Objectives</h3>
                 <ul>
-                    <li>Deploy my website using Kubernetes on Amazon Web Services</li>
-                    <li>Set up Prometheus monitoring to monitor Kubernetes metrics</li>
-                    <li>Configure Prometheus to display my Home Lab's metrics live on my website and from my personal computer</li>
+                    <li>Deploy my website using Kubernetes on Linode</li>
+                    <li>Configure Prometheus to display my Home Lab's metrics live on my website</li>
+                    <li>Create a CI-CD pipeline to automate deployments</li>
                 </ul>
             </div>
         </div>
@@ -132,23 +137,95 @@
                 <h3>The Process</h3>
                 <h4>Step 1: Re-learning Kubernetes and cloud deployments</h4>
                     <p>
-                    I had previous had my site deployed on Github pages, but going to a Kubernetes cluster on AWS was going to be something more challenging. 
-                    I have previously used Google Cloud and Kubernetes in college, and I was able to deploy a sample application for a class. It had been a couple
-                    years since I had done that type of work, so I did several tutorials on setting up Kubernetes clusters on Youtube and AWS documentation. Once I got the hang of 
-                    deploying clusters and configuring them once again, I was ready to try deploying my website. 
+                        I had previously had my site deployed on Github pages, but going to a Kubernetes cluster on Linode was going to be something more challenging. 
+                        I have previously used Google Cloud and Kubernetes in college, and I was able to deploy a sample application for a class. It had been a couple
+                        years since I had done that type of work, so I did several tutorials on setting up Kubernetes clusters on Youtube and Kubernetes documentation.
+                        I also used Amazon Web Services for my initial learning. Once I got the hang of deploying clusters and configuring them once 
+                        again, I was ready to try deploying my website with Kubernetes. 
+                    </p>
+                <h4>Step 2: Reformatting my website and setting up my cluster</h4>
+                    <p>
+                        I thought about using Amazon Web Services to deploy my website, as that is what I used to re-learn Kubernetes. However, I decided not 
+                        to use AWS as it was too costly and I put it on Linode instead. To make sure my website was organized for deployment on Kubernetes,
+                        I moved around and renamed files to prepare them for packaging with Nginx, and then I tested my page locally on Docker. The only 
+                        part that was not working on this setup was Prometheus, as I ran that before locally on another port. Once I finished Docker testing, I 
+                        created a Kubernetes cluster in Linode. 
+                    </p>
+                <h4>Step 3: Getting Prometheus metrics to my website and deploying it</h4>
+                    <p>
+                        Getting Prometheus working was definitely the trickiest part of this project, as this required the most moving parts. Starting
+                        off, I added Prometheus and Tailscale pods and namespaces to enable my cluster to grab metrics from my server also on the Tailscale network. 
+                        I proceeded to deploy my site image to the cluster. By creating a scrape config file to scrape my Proxmox server's metrics 
+                        and adding it to the Prometheus pod and creating an egress proxy to allow the website pod to reach the Proxmox server, I got my server's metrics 
+                        to display on my website.
+                    </p>
+                <h4>Step 4: Creating a CI-CD Pipeline</h4>
+                    <p>
+                        I didn't want to keep manually deploying my website, especially as I continuously push changes to fix problems.
+                        So I wrote a Github Actions workflow that builds the image, pushes it to Github Container Registry, and applies 
+                        the manifests to the cluster. The job waits on kubectl rollout status, so if a new pod never passes its readiness probe the 
+                        run fails loudly while the old pods keep serving. Without that gate a broken deploy would show that it is working, but the site
+                        would be broken. Certificates are issued automatically by cert-manager through a ClusterIssuer, so the site stays on HTTPS without 
+                        me renewing anything manually.
                     </p>
             </div>
         </div>
         <div class="container">
             <div class="section-title text-center project-text">
                 <h3>Challenges and Solutions</h3>
-
+                <h4>Issue 1: Secure exposure of my Proxmox Server</h4>
+                    <p>
+                        As I was figuring out how to have my Prometheus read my server from Kubernetes, I thought about concerns about having my 
+                        server exposed to the internet. I had a hard time figuring out how to expose my metrics securely until I 
+                        learned that Prometheus can scrape metrics off of a Tailscale node. However, setting this up was complicated and it required 
+                        a lot of research. 
+                    </p>
+                    <p>
+                        I learned that I could do it by adding a sidecar to my Prometheus pods. Rather than doing that though, I edited
+                        my Tailscale configuration and added an ACL rule to allow my Kubernetes nodes to access the ports that 
+                        Proxmox runs off of. It took me a while to get this working as I was new to Tailscale's access control model and
+                        getting the correct rules and tags on the correct instances, but I finally got the Tailscale pod on my cluster to work.
+                    </p>
+                <h4>Issue 2: Website pod could not reach the tailnet</h4>
+                    <p>
+                        With Prometheus scraping successfully, the site itself still showed nothing. The cause was that the website pod had no 
+                        route to a service that only exists on the tailnet, thus the pod and the tailnet were still two separate networks.
+                        Following Tailscale's documentation, I created an egress proxy service in the cluster that maps a normal Kubernetes service
+                        name to the tailnet address, so the site's requests resolve like any other in-cluster call. After that the metrics rendered.
+                    </p>
+                <h4>Issue 3: What happens when my home lab server goes down</h4>
+                    <p>
+                        My Proxmox server runs on a laptop at home, so it won't be online all the time. I had to decide what
+                        my website should do when the server it pulls metrics from is unreachable. Initially, I had my Kubernetes
+                        health checks confirm that the metrics were actually working with the liveliness and readiness probes. However, 
+                        Kubernetes restarts a container when its liveness probe fails, and pulls a pod out of the load balancer when its 
+                        readiness probe fails. If either probe depended on Prometheus, my home lab going offline would fail both of my website pods and the entire site would go down with 503 errors.
+                    </p>
+                    <p>
+                        There was another problem with that approach that I missed initially. My pipeline waits on kubectl rollout status, 
+                        so a new pod only counts as available once its readiness probe passes. If readiness depended on my home lab, I wouldn't be able to deploy anything at all while the laptop was off. Instead, 
+                        I kept both probes as simple endpoints in my Nginx config that return 200 as long as Nginx is serving, which is the only thing that pod is actually
+                        responsible for. I handled the failure in the frontend instead, so when my server is unreachable the metric cards show
+                        "n/a" and the page reports how many queries failed, while the rest of the site keeps working normally.
+                    </p>
             </div>
         </div>
         <div class="container">
             <div class="section-title text-center project-text">
                 <h3>What I learned</h3>
-
+                <p> In this project, I learned about how CI-CD pipelines work and how to get a website on the cloud through Kubernetes. Putting 
+                    my home lab server's metrics online also taught me about how backend services reach the frontend securely. I learned about
+                    containers, container orchestration and deployment of a project. 
+                    Every part of deploying the website with Kubernetes from Github Pages was a difficult learning experience, but the
+                    most difficult part for me was getting my Proxmox metrics securely. By making sure that the cluster and the home lab are on
+                    the Tailscale network, this prevents an attacker from making calls to the backend arbitrarily. 
+                </p>
+                <p>
+                    I also learned the difference between running services such as Prometheus and Grafana on a local machine versus on a cloud instance. 
+                    It would have been much easier to just have the screenshot of my server metrics, but I wanted to learn how to have them
+                    displayed live. By taking the additional step, I learned how to use Tailscale to expose my server to my cloud instance securely and 
+                    how to configure Kubernetes egresses and scrape configs. 
+                </p>
             </div>
         </div>
     </div>
@@ -157,7 +234,7 @@
         <div class="container">
             <div class="footer-distributed">
                 <div class="footer-left">
-                    <p class="footer-company-name">All Rights Reserved. &copy; 2018 <a href="#">Nickie</a> Design By :
+                    <p class="footer-company-name">&copy; 2026 Sean Widjaja &mdash; Design By :
                         <a href="https://html.design/">html design</a>
                     </p>
                 </div>
@@ -175,7 +252,6 @@
     <script src="/js/animated-slider.js"></script>
     <script src="/js/jqBootstrapValidation.js"></script>
     <script src="/js/custom.js"></script>
-    <script src="/js/metrics.js"></script>
 
 </body>
 

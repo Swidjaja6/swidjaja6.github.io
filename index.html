@@ -1,6 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
 
+<head>
+
 <!-- Basic -->
 <meta charset="utf-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -10,9 +12,8 @@
 
 <!-- Site Metas -->
 <title>Sean's Lab</title>
-<meta name="keywords" content="">
-<meta name="description" content="">
-<meta name="author" content="">
+<meta name="description" content="Sean's site showcasing his home lab and networking projects.">
+<meta name="author" content="Sean Widjaja">
 
 <!-- Site Icons -->
 <link rel="shortcut icon" href="/images/wifi-router.ico" type="image/x-icon" />
@@ -52,7 +53,7 @@
 	<nav class="navbar navbar-expand-lg navbar-dark fixed-top" id="mainNav">
 		<div class="container">
 			<a class="navbar-brand js-scroll-trigger" href="#page-top">
-				<img class="img-fluid" src="images/logo.png" alt="" />
+				<img class="img-fluid" src="/images/logo.png" alt="" />
 			</a>
 			<button class="navbar-toggler navbar-toggler-right" type="button" data-toggle="collapse"
 				data-target="#navbarResponsive" aria-controls="navbarResponsive" aria-expanded="false"
@@ -84,7 +85,7 @@
 
 	<div id="home" class="ct-header ct-header--slider ct-slick-custom-dots">
 		<div class="ct-slick-homepage" data-arrows="true" data-autoplay="false">
-			<div class="ct-header tablex item" data-background="/uploads/banner-04.jpg">
+			<div class="ct-header tablex item" data-background="/uploads/banner.jpg">
 				<div class="ct-u-display-tablex">
 					<div class="inner">
 						<div class="container">
@@ -93,7 +94,7 @@
 									<h1 class="big animated">Welcome to Sean's Lab</h1>
 									<p class="animated">Here you will find Sean's record of his home lab and projects.
 									</p>
-									<a class="btn-new from-middle animated" href="#">Download Resume</a>
+									<a class="btn-new from-middle animated" href="/files/resume.pdf" download>Download Resume</a>
 								</div>
 							</div>
 						</div>
@@ -110,10 +111,10 @@
 					<div class="message-box">
 						<h2>About Sean.</h2>
 						<p>My name is Sean and I am currently a Data Analyst. I have interests on the side pertaining to
-							Computer Networks and Cloud. Those interests have led me to gaining certifications
+							Computer Networks and Cloud Networking. Those interests have led me to gaining certifications
 							in those fields and building my own home lab.</p>
 						<p>On this website, I display some of the projects that I have built and my takeaways from each.
-							In addition to these projects, I also have my resume and my contact information below.</p>
+							In addition to these projects, I also have my resume and my contact information.</p>
 						<ul>
 							<li><b>Follow Me</b></li>
 							<li><a href="https://github.com/Swidjaja6" target="_blank"><i class="fa fa-github"
@@ -122,13 +123,13 @@
 										class="fa fa-linkedin" aria-hidden="true"></i></a></li>
 						</ul>
 
-						<a class="btn-new from-middle animated" href="#">Download Resume</a>
+						<a class="btn-new from-middle animated" href="/files/resume.pdf" download>Download Resume</a>
 					</div><!-- end messagebox -->
 				</div><!-- end col -->
 
 				<div class="col-md-6">
 					<div class="right-box-pro wow fadeIn">
-						<img src="images/me.jpg" alt="myphoto" class="img-fluid img-rounded fat-ab">
+						<img src="/images/me.jpg" alt="Sean Widjaja" class="img-fluid">
 					</div><!-- end media -->
 				</div><!-- end col -->
 			</div><!-- end row -->
@@ -146,7 +147,7 @@
 				<div class="col-md-4">
 					<div class="services-inner-box">
 						<div class="ser-icon">
-							<img src="images/servers.png" class="icon-image" alt="Image">
+							<img src="/images/servers.png" class="icon-image" alt="server image">
 						</div>
 						<h2>CompTIA Network+</h2>
 						<p>CompTIA Network Plus Certification.</p>
@@ -156,7 +157,7 @@
 				<div class="col-md-4">
 					<div class="services-inner-box">
 						<div class="ser-icon">
-							<img src="images/firewall.png" class="icon-image" alt="Image">
+							<img src="/images/firewall.png" class="icon-image" alt="firewall image">
 						</div>
 						<h2>CompTIA Security+</h2>
 						<p>CompTIA Security Plus Certification.</p>
@@ -166,7 +167,7 @@
 				<div class="col-md-4">
 					<div class="services-inner-box">
 						<div class="ser-icon">
-							<img src="images/computer.png" class="icon-image" alt="Image">
+							<img src="/images/computer.png" class="icon-image" alt="computer image">
 						</div>
 						<h2>CCNA</h2>
 						<p>Cisco Certified Network Associate Certification.</p>
@@ -176,114 +177,6 @@
 			</div><!-- end row -->
 		</div><!-- end container -->
 	</div><!-- end section -->
-
-	<div id="projects" class="section lb">
-		<div class="container">
-			<div class="section-title text-center">
-				<h3>Projects</h3>
-			</div><!-- end title -->
-
-
-			<div class="gallery-list row">
-				<div class="col-md-6 col-sm-6 gallery-grid gal_a gal_b">
-					<div class="gallery-single spi-hr fix hover">
-						<img src="images/proxmox.png" class="img-fluid" alt="Image">
-						<div class="text-hover">
-							<h3>Proxmox Server</h3>
-							<h4>I set up a proxmox server on a used laptop. From there, I set up an instance of Windows
-								Server 2022 and a Kali Linux instance.
-								I set up my server to give DHCP and DNS services to my machines on proxmox.
-								From there, I got an IP address and DNS services were given by the server rather than my
-								own WiFi router.</h4>
-							<h4>While playing around with my proxmox server, I wanted to see if I could access my server
-								from outside of my LAN.
-								I thought about port forwarding, but port forwarding is insecure and could open my LAN
-								to attacks.
-								So I also installed Tailscale onto my instance of proxmox, so now I can access my
-								Proxmox machine from anywhere
-								as long as I am connected to Tailscale from the machine that I am using outside of the
-								LAN.
-							</h4>
-							<h4>Image Source: Proxmox</h4>
-						</div>
-						<div class="img-overlay"></div>
-					</div>
-				</div>
-
-				<div class="col-md-6 col-sm-6 gallery-grid gal_c gal_b">
-					<div class="gallery-single spi-hr fix">
-						<img src="images/datacenter.png" class="img-fluid" alt="Image">
-						<div class="text-hover">
-							<h3>Amazon Web Services</h3>
-							<h4>I did the same project as with the proxmox project on the left, except I decided to use
-								AWS to attempt to replicate my work. For that, I created my own Virtual Private Cloud,
-								and created a public and private subnet. From there, I put my Windows server in my
-								public cloud and an instance of Amazon
-								Linux in my private instance and connected to it through another Linux instance in my
-								public subnet. I did not use Windows Server's DHCP service,
-								as AWS has its own, but I was able to have it run its DNS service, and tested it on my
-								private Linux instance.</h4>
-							<h4>Part of my learning process here was to learn how AWS's VPC and EC4 services worked and
-								how they related to each other.
-								I also had to learn how to give my public subnet a route table and an internet gateway
-								to get the cloud to access the internet and vice versa.
-								I made the route table for the public subnet point to the internet. For my private
-								subnet, I had to create another
-								route table, but instead of pointing it to the internet, I pointed it to a NAT gateway,
-								so that the internet cannot access the private subnet,
-								and therefore, my private Linux instance.
-							</h4>
-						</div>
-						<div class="img-overlay"></div>
-					</div>
-				</div>
-
-				<div class="col-md-6 col-sm-6 gallery-grid gal_b gal_a">
-					<div class="gallery-single spi-hr fix">
-						<img src="images/NAS.png" class="img-fluid" alt="Image">
-						<div class="text-hover">
-							<h3>Self-hosted Network Attached Storage</h3>
-							<h4>Through my CompTIA Network+ exam, I learned about what a Network Attached Storage (NAS)
-								was, and I
-								wanted to see if I could replicate my own rather than using a cloud storage like Google
-								Drive or OneDrive.
-							</h4>
-							<h4>Using a Raspberry Pi 5, I downloaded OpenMediaVault and attached a hard drive to my
-								machine. From there, I set up
-								an admin and user account so I could access my storage. I also used Tailscale as a means
-								to connect to it using
-								my computer's Server Message Block (SMB) protocol to allow access to it from outside of
-								my LAN.
-							</h4>
-						</div>
-						<div class="img-overlay"></div>
-					</div>
-				</div>
-
-				<div class="col-md-6 col-sm-6 gallery-grid gal_a gal_c">
-					<div class="gallery-single spi-hr fix">
-						<img src="images/CPT.png" class="img-fluid" alt="Image">
-						<div class="text-hover">
-							<h3>Cisco Packet Tracer labs</h3>
-							<h4>As I am currently studying for the CCNA, I have a github repository where I keep labs.
-								You can access my labs
-								<a href="https://github.com/Swidjaja6/network-labs-portfolio" target="_blank"
-									rel="noopener noreferrer">here</a>.
-							</h4>
-							<h4>In these labs, I follow an online template, and I try to replicate those results. These
-								labs are productive for
-								my learning because it helps me see what commands on the devices or concepts I am weak
-								in, and helps me practice for the
-								actual exam.
-							</h4>
-						</div>
-						<div class="img-overlay"></div>
-					</div>
-				</div>
-			</div>
-		</div>
-	</div>
-	</div>
 
 	<div id="contact" class="section db">
 		<div class="container">
@@ -297,11 +190,11 @@
 					<div class="contact_form">
 						<div id="message"></div>
 						<form id="contactForm" name="sentMessage" action="https://api.web3forms.com/submit"
-							method="POST" novalidate="novalidate">
+							method="POST">
 							<input type="hidden" name="access_key" value="3d1cdb2e-0d59-4acd-aa0e-c49f2dd755e6">
 							<input type="checkbox" name="botcheck" class="hidden" style="display: none;">
 							<input type="hidden" name="subject" value="New Contact Form Submission from Portfolio">
-							<input type="hidden" name="redirect" value="https://yourusername.github.io/thank-you.html">
+							<input type="hidden" name="redirect" value="https://seanslab.site/thank-you.html">
 
 							<div class="row">
 								<div class="col-md-6">
@@ -350,7 +243,7 @@
 		<div class="container">
 			<div class="footer-distributed">
 				<div class="footer-left">
-					<p class="footer-company-name">All Rights Reserved. &copy; 2018 <a href="#">Nickie</a> Design By :
+					<p class="footer-company-name">&copy; 2026 Sean Widjaja &mdash; Design By :
 						<a href="https://html.design/">html design</a>
 					</p>
 				</div>

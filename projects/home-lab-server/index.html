@@ -1,6 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
 
+<head>
+
 <!-- Basic -->
 <meta charset="utf-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -10,9 +12,9 @@
 
 <!-- Site Metas -->
 <title>Sean's Lab - Home Lab Server</title>
-<meta name="keywords" content="">
-<meta name="description" content="">
-<meta name="author" content="">
+<meta name="description" content="Building a Proxmox home lab: Type-1 virtualization, Active Directory and DHCP on Windows Server,
+ Prometheus and Grafana monitoring, and Ansible automation.">
+<meta name="author" content="Sean Widjaja">
 
 <!-- Site Icons -->
 <link rel="shortcut icon" href="/images/wifi-router.ico" type="image/x-icon" />
@@ -85,7 +87,7 @@
 
     <div id="home" class="ct-header ct-header--slider ct-slick-custom-dots">
         <div class="ct-slick-homepage" data-arrows="true" data-autoplay="false">
-            <div class="ct-header tablex item" data-background="/uploads/banner-04.jpg">
+            <div class="ct-header tablex item" data-background="/uploads/banner.jpg">
                 <div class="ct-u-display-tablex">
                     <div class="inner">
                         <div class="container">
@@ -106,13 +108,15 @@
         <div class="container">
             <div class="section-title text-center project-text">
                 <h3>Project Overview</h3>
-                <p>For a long time I had experience with Type-2 Virtualization, also known as Hosted VMs. Using VirtualBox, I would run
+                <p>
+                    For a long time I had experience with Type-2 Virtualization, also known as Hosted VMs. Using VirtualBox, I would run
                     virtual machines on either my machines running Windows 11 or Linux. However, I would notice a decrease in performance when I ran VMs on either. 
                     I learned from a friend about Type-1 Virtualization, and an OS that accomplishes this called Proxmox. With Proxmox, I can run 
                     several virtual machines without the system overhead that I get with hosted VMs. I also have the ability to access my Proxmox VMs remotely
                     even outside of my LAN.
                 </p>
-                <p>Hosting a Proxmox server also allowed me to play around with Windows Server 2025, as I wanted to learn how to use Active Directory
+                <p>
+                    Hosting a Proxmox server also allowed me to play around with Windows Server 2025, as I wanted to learn how to use Active Directory
                     and use its DHCP services to lease IP addresses to other machines on my hypervisor. In addition, I used Ansible playbooks to manage my server
                     and practice IaC principles.
                 </p>
@@ -134,28 +138,49 @@
                 <h3>The Process</h3>
                 <h4>Step 1: Installation and running VMs</h4>
                     <p>
-                    Once I got my hands on a spare laptop, I downloaded an instance of Proxmox and installed it using a flash drive.
-                    I also got an ISO of two Operating Systems being Windows Server 2022 and Kali Linux. Once I started running the VMs, 
-                    I wanted to apply some of the concepts that I learned from studying for the CCNA.
+                        Once I got my hands on a spare laptop, I downloaded an instance of Proxmox and installed it using a flash drive.
+                        I also got an ISO of two Operating Systems being Windows Server 2022 and Kali Linux. Once I started running the VMs, 
+                        I wanted to apply some of the concepts that I learned from studying for the CCNA.
                     </p>
                 <h4>Step 2: Configuring Windows Server 2022 and Kali Linux</h4>
                     <p>
-                    After starting up my instance of Windows Server, I installed DHCP services and created a second network bridge and put my Kali Linux instance
-                    on that bridge. A Proxmox bridge essentially acts as a Layer 2 Switch in my setup, so having two of them separates my devices by Data Link Layer.
-                    I put both network bridges in my Windows server and I set up DHCP services on it. I was able to get it to run, and after setting the scope and authorizing it,
-                    my Kali Linux device was able to get an IP address from my Windows Server and it could ping the internet. I downloaded and installed an instance of Ubuntu 
-                    and tested it there as well, and it received the IP address next in the lease lineup. 
+                        After starting up my instance of Windows Server, I installed DHCP services and created a second network bridge and put my Kali Linux instance
+                        on that bridge. A Proxmox bridge essentially acts as a Layer 2 Switch in my setup, so having two of them separates my devices by Data Link Layer.
+                        I put both network bridges in my Windows server and I set up DHCP services on it. I was able to get it to run, and after setting the scope and authorizing it,
+                        my Kali Linux device was able to get an IP address from my Windows Server and it could ping the internet. I downloaded and installed an instance of Ubuntu 
+                        and tested it there as well, and it received the IP address next in the lease lineup. 
                     </p>
                 <h4>Step 3: Running Prometheus and Grafana for remote monitoring</h4>
                     <p>
-                    By this point I wanted a way to monitor my server remotely without having to log into the Web UI itself. In my volunteer work for setting up networks, one of my 
-                    tasks was to have our nodes set up with a cloud-init, and in that cloud-init I added a Prometheus-node-exporter package to
-                    allow for our servers to extract information. That gave me the idea to install Prometheus and Grafana for monitoring my server. 
+                        By this point I wanted a way to monitor my server remotely without having to log into the Web UI itself. In my volunteer work for setting up networks, one of my 
+                        tasks was to have our nodes set up with a cloud-init, and in that cloud-init I added a Prometheus-node-exporter package to
+                        allow for our servers to extract information. That gave me the idea to install Prometheus and Grafana for monitoring my server. 
                     </p>
                     <p>
-                    By this point I wanted a way to monitor my server remotely without having to log into the Web UI itself. In my volunteer work for setting up networks, one of my 
-                    tasks was to have our nodes set up with a cloud-init, and in that cloud-init I added a Prometheus-node-exporter package to
-                    allow for our servers to extract information. That gave me the idea to install Prometheus and Grafana for monitoring my server. 
+                        On one of my host machines, I set up several Docker containers in a docker-compose file. These included images of Prometheus 
+                        PVE Exporter to pull data from my server via API, Prometheus itself to store data, and Grafana to visualize the data in a readable format. 
+                        Below is a screenshot of one of my Grafana dashboard that shows my server's metrics. In addition, at the bottom of this page, I have some of
+                        my server's metrics in real time queried via PromQL (Prometheus Query Language).
+                    </p>
+
+                <figure>
+                    <img src="/images/Grafana.png" class="img-fluid"
+                        alt="Grafana dashboard showing Proxmox CPU, memory, and storage usage over time">
+                    <figcaption>
+                        A Grafana dashboard visualizing my Proxmox host's CPU, memory, and storage metrics,
+                        scraped by Prometheus from PVE exporter.
+                    </figcaption>
+                </figure>
+                <h4>Step 4: Use Ansible playbooks to manage my server (In Progress) </h4>
+                    <p>
+                        Although my server is running on a laptop, that doesn't mean that I wouldn't run my Proxmox VE on a stronger machine later on. 
+                        I wanted to practice automate creating and deleting my VMs with Ansible so I can apply it in the future. I started creating a user 
+                        on Proxmox that I can use whenever I run a playbook. Then I started by making a playbook to make a VM with nothing in it to test if my ansible
+                        playbooks could interact with my system. 
+                    </p>
+                    <p>
+                        I plan to create three more playbooks; a cloud-init template builder, another to clone from the cloud-init template, and finally a teardown playbook 
+                        to delete VMs that I no longer need. Once I finish this, I will have completed a full IaC pipeline that I can use to manage my server and its VMs. 
                     </p>
             </div>
         </div>
@@ -173,7 +198,7 @@
         <div class="container">
             <div class="section-title text-center project-text">
                 <h3>What I learned</h3>
-
+                <p>To be added later...</p>
             </div>
         </div>
     </div>
@@ -184,7 +209,7 @@
 
             <div class="section-title text-center">
                 <h3>Proxmox Metrics</h3>
-                <p>Pulled live from my server using Prometheus. Currently pointed at <code id="prom-url-label"></code>.</p>
+                <p>Pulled live from my server using Prometheus.</p>
             </div><!-- end title -->
 
             <div class="row" id="metrics-cards">
@@ -204,7 +229,7 @@
         <div class="container">
             <div class="footer-distributed">
                 <div class="footer-left">
-                    <p class="footer-company-name">All Rights Reserved. &copy; 2018 <a href="#">Nickie</a> Design By :
+                    <p class="footer-company-name">&copy; 2026 Sean Widjaja &mdash; Design By :
                         <a href="https://html.design/">html design</a>
                     </p>
                 </div>

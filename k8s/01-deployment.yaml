@@ -1,0 +1,92 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  namespace: labsite
+  name: site-deployment
+  labels:
+    app: website
+spec:
+  replicas: 2
+  # Must match template.metadata.labels below, and is immutable once created.
+  selector:
+    matchLabels:
+      app: website
+
+  strategy:
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+
+  template:
+    metadata:
+      # Service selects pods here
+      labels:
+        app: website
+    spec:
+      automountServiceAccountToken: false
+
+      imagePullSecrets:
+        - name: ghcr-creds
+
+      securityContext:
+        # nginx user in unprivileged mode
+        runAsNonRoot: true
+        runAsUser: 101
+        seccompProfile:
+          type: RuntimeDefault
+
+      containers:
+        - name: website
+          # Set to latest image for now, will change once pipeline is set up
+          image: ghcr.io/swidjaja6/personal-website:2026-08-11a
+          imagePullPolicy: IfNotPresent
+
+          ports:
+            - name: http
+              containerPort: 8080
+
+          # Check if the container is running smoothly
+          livenessProbe:
+            httpGet:
+              path: /livez
+              port: 8080
+            initialDelaySeconds: 5
+            periodSeconds: 5
+            timeoutSeconds: 2
+            failureThreshold: 3
+
+          # Check if the container is ready to accept network traffic
+          readinessProbe:
+            httpGet:
+              path: /readyz
+              port: 8080
+            initialDelaySeconds: 5
+            periodSeconds: 5
+            timeoutSeconds: 2
+            failureThreshold: 2
+
+          resources:
+            requests:
+              cpu: 10m
+              memory: 32Mi
+            limits:
+              memory: 128Mi
+
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              # nginx listens on 8080, so it needs no capabilities at all.
+              drop: ["ALL"]
+
+          volumeMounts:
+            - name: tmp
+              mountPath: /tmp
+            - name: nginx-cache
+              mountPath: /var/cache/nginx
+
+      volumes:
+        - name: tmp
+          emptyDir: {}
+        - name: nginx-cache
+          emptyDir: {}

@@ -1,0 +1,16 @@
+# Scrapes node_exporter on the Proxmox host through the egress proxy.
+apiVersion: monitoring.coreos.com/v1alpha1
+kind: ScrapeConfig
+metadata:
+  name: homelab-node
+  namespace: monitoring
+  labels:
+    release: kps
+spec:
+  scrapeInterval: 30s
+  staticConfigs:
+    - targets:
+        - pve-lab.monitoring.svc.cluster.local:9100
+      labels:
+        origin: homelab
+        instance: pve

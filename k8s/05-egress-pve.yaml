@@ -1,0 +1,16 @@
+# Egress proxy to the Proxmox host over Tailscale.
+apiVersion: v1
+kind: Service
+metadata:
+  name: pve-lab
+  namespace: monitoring
+  annotations:
+    # MagicDNS name of my pve device
+    tailscale.com/tailnet-fqdn: pve.tailcd46c2.ts.net
+spec:
+  type: ExternalName
+  externalName: placeholder # Rewritten by the operator to a CNAME pointing at proxy pod
+  ports:
+    # Node-exporter instance listens on port 9100 by default
+    - name: node-exporter
+      port: 9100
