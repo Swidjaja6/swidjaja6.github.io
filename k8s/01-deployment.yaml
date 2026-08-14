@@ -37,8 +37,8 @@ spec:
 
       containers:
         - name: website
-          # Set to latest image for now, will change once pipeline is set up
-          image: ghcr.io/swidjaja6/personal-website:2026-08-11a
+          # Placeholder — CI rewrites this to the commit SHA on each deploy
+          image: ghcr.io/swidjaja6/personal-website:latest
           imagePullPolicy: IfNotPresent
 
           ports:

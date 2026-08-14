@@ -8,7 +8,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 
 <!-- Mobile Metas -->
-<meta name="viewport" content="width=device-width, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <!-- Site Metas -->
 <title>Sean's Lab - Home Lab Server</title>
@@ -38,7 +38,7 @@
 
 </head>
 
-<body id="page-top" class="politics_version">
+<body id="page-top">
 
     <!-- LOADER -->
     <div id="preloader">
@@ -55,7 +55,7 @@
     <nav class="navbar navbar-expand-lg navbar-dark fixed-top" id="mainNav">
         <div class="container">
             <a class="navbar-brand js-scroll-trigger" href="/">
-                <img class="img-fluid" src="/images/logo.png" alt="" />
+                <img class="img-fluid" src="/images/logo.png" alt="Sean's Lab home" />
             </a>
             <button class="navbar-toggler navbar-toggler-right" type="button" data-toggle="collapse"
                 data-target="#navbarResponsive" aria-controls="navbarResponsive" aria-expanded="false"
@@ -112,11 +112,12 @@
                     For a long time I had experience with Type-2 Virtualization, also known as Hosted VMs. Using VirtualBox, I would run
                     virtual machines on either my machines running Windows 11 or Linux. However, I would notice a decrease in performance when I ran VMs on either. 
                     I learned from a friend about Type-1 Virtualization, and an OS that accomplishes this called Proxmox. With Proxmox, I can run 
-                    several virtual machines without the system overhead that I get with hosted VMs. I also have the ability to access my Proxmox VMs remotely
-                    even outside of my LAN.
+                    several virtual machines without the system overhead that I get with hosted VMs. I also have the ability to access my Proxmox VMs remotely even outside of my LAN, 
+                    since the server sits on a Tailscale network rather than being exposed to the internet. That same tailnet is what lets my 
+                    <a href="/projects/personal-website/">website's Kubernetes cluster</a> scrape these metrics.
                 </p>
                 <p>
-                    Hosting a Proxmox server also allowed me to play around with Windows Server 2025, as I wanted to learn how to use Active Directory
+                    Hosting a Proxmox server also allowed me to play around with Windows Server 2022, as I wanted to learn how to use Active Directory
                     and use its DHCP services to lease IP addresses to other machines on my hypervisor. In addition, I used Ansible playbooks to manage my server
                     and practice IaC principles.
                 </p>
@@ -139,12 +140,12 @@
                 <h4>Step 1: Installation and running VMs</h4>
                     <p>
                         Once I got my hands on a spare laptop, I downloaded an instance of Proxmox and installed it using a flash drive.
-                        I also got an ISO of two Operating Systems being Windows Server 2022 and Kali Linux. Once I started running the VMs, 
-                        I wanted to apply some of the concepts that I learned from studying for the CCNA.
+                        I also got an ISO of two Operating Systems being Windows Server 2022 and Kali Linux. Once I had Proxmox set up and running, 
+                        I navigated to the IP address of my Proxmox server on another machine and logged into the web UI.
                     </p>
                 <h4>Step 2: Configuring Windows Server 2022 and Kali Linux</h4>
                     <p>
-                        After starting up my instance of Windows Server, I installed DHCP services and created a second network bridge and put my Kali Linux instance
+                        After installing both operating systems as VMs, I created a second network bridge and put my Kali Linux instance
                         on that bridge. A Proxmox bridge essentially acts as a Layer 2 Switch in my setup, so having two of them separates my devices by Data Link Layer.
                         I put both network bridges in my Windows server and I set up DHCP services on it. I was able to get it to run, and after setting the scope and authorizing it,
                         my Kali Linux device was able to get an IP address from my Windows Server and it could ping the internet. I downloaded and installed an instance of Ubuntu 
@@ -159,7 +160,7 @@
                     <p>
                         On one of my host machines, I set up several Docker containers in a docker-compose file. These included images of Prometheus 
                         PVE Exporter to pull data from my server via API, Prometheus itself to store data, and Grafana to visualize the data in a readable format. 
-                        Below is a screenshot of one of my Grafana dashboard that shows my server's metrics. In addition, at the bottom of this page, I have some of
+                        Below is a screenshot of one of my Grafana dashboards that shows my server's metrics. In addition, at the bottom of this page, I have some of
                         my server's metrics in real time queried via PromQL (Prometheus Query Language).
                     </p>
 
@@ -171,16 +172,16 @@
                         scraped by Prometheus from PVE exporter.
                     </figcaption>
                 </figure>
-                <h4>Step 4: Use Ansible playbooks to manage my server (In Progress) </h4>
+                <h4>Step 4: Automating server management with Ansible</h4>
                     <p>
                         Although my server is running on a laptop, that doesn't mean that I wouldn't run my Proxmox VE on a stronger machine later on. 
-                        I wanted to practice automate creating and deleting my VMs with Ansible so I can apply it in the future. I started creating a user 
+                        I wanted to practice automating creating and deleting my VMs with Ansible so I can apply it in the future. I started creating a user 
                         on Proxmox that I can use whenever I run a playbook. Then I started by making a playbook to make a VM with nothing in it to test if my ansible
                         playbooks could interact with my system. 
                     </p>
                     <p>
-                        I plan to create three more playbooks; a cloud-init template builder, another to clone from the cloud-init template, and finally a teardown playbook 
-                        to delete VMs that I no longer need. Once I finish this, I will have completed a full IaC pipeline that I can use to manage my server and its VMs. 
+                        <em>Status: in progress, last updated August 2026. The server, Windows Server VMs, and monitoring are running;
+                        the Ansible automation is partially built.</em>
                     </p>
             </div>
         </div>
@@ -197,8 +198,39 @@
         </div>
         <div class="container">
             <div class="section-title text-center project-text">
-                <h3>What I learned</h3>
-                <p>To be added later...</p>
+                <h3>What's Next</h3>
+                <p>
+                    I plan to create three more playbooks; a cloud-init template builder, another to clone from the cloud-init template, and finally a teardown playbook 
+                    to delete VMs that I no longer need. Once I finish this, I will have completed a full IaC pipeline that I can use to manage my server and its VMs. 
+                </p>
+            </div>
+        </div>
+        <div class="container">
+            <div class="section-title text-center project-text">
+                <h3>What I Learned</h3>
+                <p>
+                    From this project, I learned how to use a Type-1 hypervisor and the difference between Type-1 and Type-2. With VirtualBox, 
+                    my VMs were competing with Windows or Linux and everything else those systems were already doing. Proxmox has no 
+                    desktop OS underneath it taking a share, so the resources I assign to a VM are much closer to what that VM actually gets. 
+                </p>
+                <p>
+                    I also applied a lot of CCNA concepts that I studied about into a project that I built. A Proxmox bridge behaves like a 
+                    Layer 2 switch, so creating a second bridge gave me two separate broadcast domains on one machine, and I could watch which 
+                    devices could reach each other and which could not. Setting up DHCP on Windows Server made scopes and leases concrete in 
+                    the same way, especially when I added a third VM and watched it receive the next address in the range. The authorization problem 
+                    in the challenges section taught me why server authorization is important, because the answer was not a misconfiguration. 
+                    Active Directory requires DHCP servers to be authorized before they hand out addresses so that a malicious actor can't attach a 
+                    rogue DHCP server to a domain network and start answering requests.
+                </p>
+                <p>
+                    Setting up monitoring taught me about the moving parts involved. The PVE exporter translates Proxmox metrics into 
+                    Prometheus format, Prometheus stores them over time, and Grafana renders them in a readable format. I thought of monitoring
+                    as a single tool before this, and seeing the pieces split apart explained why Prometheus pulls from its targets
+                    instead of having each machine push to it. Setting it up in my LAN taught me how I could send the server's metrics remotely. 
+                    Port forwarding would have been quicker, but putting the server on a Tailscale network meant I could reach it
+                    remotely without exposing the Proxmox web interface to the internet, and that same tailnet is what my
+                    website's Kubernetes cluster uses to scrape these metrics.
+                </p>
             </div>
         </div>
     </div>
@@ -209,7 +241,8 @@
 
             <div class="section-title text-center">
                 <h3>Proxmox Metrics</h3>
-                <p>Pulled live from my server using Prometheus.</p>
+                <p>Pulled live from my server using Prometheus. My server runs on a spare laptop at home, so if it is powered off 
+                    or the connection fails, these cards will show "n/a" and the rest of the site will function as normal.</p>
             </div><!-- end title -->
 
             <div class="row" id="metrics-cards">

@@ -47,9 +47,7 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
-      # Rewrites the tag in the runner's checkout only — nothing is committed.
-      # Doing this before apply means one rollout instead of two (apply to the
-      # manifest's old tag, then a second rollout from `kubectl set image`).
+      # Rewrites the tag in the runner's checkout only. Doing this before apply means one rollout instead of two
       - name: Point manifest at the image just built
         run: |
           sed -i "s#image: ${IMAGE}:.*#image: ${IMAGE}:${GITHUB_SHA}#" k8s/01-deployment.yaml
@@ -61,6 +59,7 @@ jobs:
           version: v1.31.0
 
       - name: Configure kubectl
+        # Decodes kubeconfig from Github secrets and writes it into the runner's home directory
         run: |
           mkdir -p "$HOME/.kube"
           echo "${{ secrets.KUBECONFIG_B64 }}" | base64 -d > "$HOME/.kube/config"
@@ -69,9 +68,8 @@ jobs:
       - name: Apply manifests
         run: kubectl apply -f k8s/
 
-      # The real gate. maxUnavailable:0 means a new pod that never passes its
-      # readiness probe stalls here and fails the run, while the old pods keep
-      # serving. Without this step a broken deploy reports green.
+      # maxUnavailable:0 means a new pod that never passes its readiness probe stalls here and fails the run, 
+      # while the old pods keep serving. Without this step a broken deploy reports as working.
       - name: Wait for rollout
         run: kubectl -n "$NAMESPACE" rollout status "deployment/$DEPLOYMENT" --timeout=180s
 

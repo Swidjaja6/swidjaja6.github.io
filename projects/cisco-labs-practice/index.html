@@ -8,7 +8,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 
 <!-- Mobile Metas -->
-<meta name="viewport" content="width=device-width, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <!-- Site Metas -->
 <title>Sean's Lab - CML Practice</title>
@@ -38,7 +38,7 @@ and practicing network automation by configuring multiple routers with Ansible p
 
 </head>
 
-<body id="page-top" class="politics_version">
+<body id="page-top">
 
     <!-- LOADER -->
     <div id="preloader">
@@ -55,7 +55,7 @@ and practicing network automation by configuring multiple routers with Ansible p
     <nav class="navbar navbar-expand-lg navbar-dark fixed-top" id="mainNav">
         <div class="container">
             <a class="navbar-brand js-scroll-trigger" href="/">
-                <img class="img-fluid" src="/images/logo.png" alt="" />
+                <img class="img-fluid" src="/images/logo.png" alt="Sean's Lab home" />
             </a>
             <button class="navbar-toggler navbar-toggler-right" type="button" data-toggle="collapse"
                 data-target="#navbarResponsive" aria-controls="navbarResponsive" aria-expanded="false"
@@ -108,10 +108,17 @@ and practicing network automation by configuring multiple routers with Ansible p
         <div class="container">
             <div class="section-title text-center project-text">
                 <h3>Project Overview</h3>
-                <p>Once I passed the CCNA, I wanted to keep on practicing what I had learned to make sure my skills didn't get rusty. I also
-                    wanted to try out network automation. Initially I continued doing labs on Cisco Packet Tracer, but I learned that it was not
-                    suitable for what the industry does. I was told about Cisco Modeling Labs which works with real OS images. In addition, I could also
-                    practice my automation skills by deploying Ansible playbooks to configure multiple routers. 
+                <p>Once I passed the CCNA, I wanted to keep on practicing what I had learned and I wanted to try out network automation. 
+                    Initially I continued doing labs on Cisco Packet Tracer, but Packet Tracer only simulates
+                    device behavior and supports only some IOS commands, which was fine for when I studied for the CCNA, but
+                    not for automation or production environments. I was told about Cisco Modeling Labs, which runs the same IOS images that 
+                    run on actual Cisco hardware, so its devices sit on my own network and can be configured over SSH from my host computer 
+                    the way a production router would be. That is what made it possible to practice automation by deploying Ansible 
+                    playbooks to configure multiple routers.
+                </p>
+                <p>
+                    <em>Status: in progress, last updated August 2026. Two routers are up with an OSPF adjacency between them,
+                    one configured by hand and one configured with Ansible.</em>
                 </p>
             </div>
         </div>
@@ -126,23 +133,47 @@ and practicing network automation by configuring multiple routers with Ansible p
         </div>
         <div class="container">
             <div class="section-title text-center project-text">
-                <h3>The Process</h3>
-                <h4>To be added later...</h4>
+                <h3>Progress So Far</h3>
+                <h4>Step 1: Getting CML running and building the topology</h4>
                     <p>
-                    
+                        I set up my Cisco Modeling Labs instance and built a small topology with two routers. The outer router is called ExtRouter, and it
+                        connects out to my home LAN through CML's external connector on G0/0, so the lab is reachable from my real network 
+                        rather than being sealed off inside the CML network. R1 sits behind it, connected only to ExtRouter over a link between 
+                        their G0/1 interfaces. Keeping the lab reachable from my LAN is what makes the automation work possible,
+                        since Ansible has to be able to reach the devices it configures. 
+                    </p>
+                <figure>
+                    <img src="/images/CMLScreenshot.png" class="img-fluid"
+                        alt="CML topology: ExtRouter connected to an external connector on G0/0 and to R1 on G0/1, 
+                        forming a two-router lab bridged to my home LAN">
+                    <figcaption>
+                        A screenshot of my current Cisco Modeling Labs topology.
+                    </figcaption>
+                </figure>
+                <h4>Step 2: Configuring OSPF by hand on R1</h4>
+                    <p>
+                        I configured R1 manually through the CLI, assigning its interface addresses and bringing up OSPF by hand.
+                        As I was planning to automate ExtRouter with Ansible, I wanted to use R1 as a model to 
+                        make sure that I had a template to base ExtRouter's configuration on. 
+                    </p>
+                <h4>Step 3: Automating ExtRouter with Ansible</h4>
+                    <p>
+                        With a manual configuration to model off of, I wrote Ansible playbooks to configure ExtRouter instead of
+                        typing it in. The playbooks assign the interface IP addresses and enable OSPF on the interface facing R1. 
+                        Once my playbooks ran successfully, the two routers formed an OSPF adjacency and exchanged routes, with one side
+                        configured by hand and the other configured by Ansible playbooks.
                     </p>
             </div>
         </div>
         <div class="container">
             <div class="section-title text-center project-text">
-                <h3>Challenges and Solutions</h3>
-                    <p>To be added later...</p>
-            </div>
-        </div>
-        <div class="container">
-            <div class="section-title text-center project-text">
-                <h3>What I learned</h3>
-                <p>To be added later...</p>
+                <h3>What's Next</h3>
+                <ul>
+                    <li>Expand the topology beyond two routers so OSPF has more than a single adjacency to work with</li>
+                    <li>Move the remaining manual configuration on R1 into playbooks</li>
+                    <li>Build the playbooks into reusable roles rather than one-off files</li>
+                    <li>Add a playbook that captures the running configuration off each device for backup</li>
+                </ul>
             </div>
         </div>
     </div>
