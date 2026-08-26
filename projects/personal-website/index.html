@@ -109,7 +109,7 @@ with a GitHub Actions deploy pipeline and live Prometheus metrics from my home l
             <div class="section-title text-center project-text">
                 <h3>Project Overview</h3>
                 <p>
-                    You are on this website now. My personal site was initially some static pages hosted on Github pages. 
+                    You are on this website now. My personal site was initially some static pages hosted on GitHub pages. 
                     It worked, but I felt that I could host it somewhere else while also learning about how most websites 
                     are hosted nowadays, especially when most of them are not static. 
                 </p>
@@ -128,7 +128,8 @@ with a GitHub Actions deploy pipeline and live Prometheus metrics from my home l
                 <ul>
                     <li>Deploy my website using Kubernetes on Linode</li>
                     <li>Configure Prometheus to display my Home Lab's metrics live on my website</li>
-                    <li>Create a CI-CD pipeline to automate deployments</li>
+                    <li>Create a CI/CD pipeline to automate deployments</li>
+                    <li>Integrate Terraform for automation of cluster management</li>
                 </ul>
             </div>
         </div>
@@ -137,7 +138,7 @@ with a GitHub Actions deploy pipeline and live Prometheus metrics from my home l
                 <h3>The Process</h3>
                 <h4>Step 1: Re-learning Kubernetes and cloud deployments</h4>
                     <p>
-                        I had previously had my site deployed on Github pages, but going to a Kubernetes cluster on Linode was going to be something more challenging. 
+                        I had previously had my site deployed on GitHub pages, but going to a Kubernetes cluster on Linode was going to be something more challenging. 
                         I have previously used Google Cloud and Kubernetes in college, and I was able to deploy a sample application for a class. It had been a couple
                         years since I had done that type of work, so I did several tutorials on setting up Kubernetes clusters on Youtube and Kubernetes documentation.
                         I also used Amazon Web Services for my initial learning. Once I got the hang of deploying clusters and configuring them once 
@@ -159,14 +160,23 @@ with a GitHub Actions deploy pipeline and live Prometheus metrics from my home l
                         and adding it to the Prometheus pod and creating an egress proxy to allow the website pod to reach the Proxmox server, I got my server's metrics 
                         to display on my website.
                     </p>
-                <h4>Step 4: Creating a CI-CD Pipeline</h4>
+                <h4>Step 4: Creating a CI/CD Pipeline for rolling deployments</h4>
                     <p>
                         I didn't want to keep manually deploying my website, especially as I continuously push changes to fix problems.
-                        So I wrote a Github Actions workflow that builds the image, pushes it to Github Container Registry, and applies 
+                        So I wrote a GitHub Actions workflow that builds the image, pushes it to GitHub Container Registry, and applies 
                         the manifests to the cluster. The job waits on kubectl rollout status, so if a new pod never passes its readiness probe the 
                         run fails loudly while the old pods keep serving. Without that gate a broken deploy would show that it is working, but the site
                         would be broken. Certificates are issued automatically by cert-manager through a ClusterIssuer, so the site stays on HTTPS without 
                         me renewing anything manually.
+                    </p>
+                <h4>Step 5: Integrating Terraform for Automation</h4>
+                    <p>
+                        In case my cluster went down, I wanted to make sure I could recreate it easily and with the previous settings I had set it
+                        up with initially. I used Terraform to create a configuration file that would create the cluster with the same settings as 
+                        before, so if I ever needed to recreate it, I wouldn't have to manually configure on the Linode dashboard. 
+                        I had set up my cluster without the use of Terraform, so I had to figure out how to get the configuration file to match the 
+                        cluster I had already created. I used the Linode CLI to get the cluster's ID and then used the Terraform import command to 
+                        import the cluster into my configuration file. After that, I was able to use Terraform to manage my cluster.
                     </p>
             </div>
         </div>
@@ -197,7 +207,7 @@ with a GitHub Actions deploy pipeline and live Prometheus metrics from my home l
                     <p>
                         My Proxmox server runs on a laptop at home, so it won't be online all the time. I had to decide what
                         my website should do when the server it pulls metrics from is unreachable. Initially, I had my Kubernetes
-                        health checks confirm that the metrics were actually working with the liveliness and readiness probes. However, 
+                        health checks confirm that the metrics were actually working with the liveness and readiness probes. However, 
                         Kubernetes restarts a container when its liveness probe fails, and pulls a pod out of the load balancer when its 
                         readiness probe fails. If either probe depended on Prometheus, my home lab going offline would fail both of my website pods and the entire site would go down with 503 errors.
                     </p>
@@ -208,16 +218,26 @@ with a GitHub Actions deploy pipeline and live Prometheus metrics from my home l
                         responsible for. I handled the failure in the frontend instead, so when my server is unreachable the metric cards show
                         "n/a" and the page reports how many queries failed, while the rest of the site keeps working normally.
                     </p>
+                <h4>Issue 4: Nodes had no network-level firewall</h4>
+                    <p>
+                        While setting up my Terraform configuration, I realized that my nodes had no firewall, given that they were assigned
+                        public IP addresses. The only way the public should be able to access my website is through the NodeBalancer. Initially,
+                        I put rules allowing only ports 80 and 443, but I realized that these were firewall rules being placed on the nodes, not 
+                        the NodeBalancer. Had I done this, it would have kept anyone from reaching my website. I learned that the nodes 
+                        have a private network that the NodeBalancer can reach, so I made the firewall rules to only allow traffic from the
+                        private network, and put a default-deny rule for other inbound traffic. I also allowed outbound traffic, since the
+                        nodes need to pull images from the container registry and reach my home lab's metrics using Prometheus. 
+                    </p>
             </div>
         </div>
         <div class="container">
             <div class="section-title text-center project-text">
                 <h3>What I Learned</h3>
                 <p> 
-                    In this project, I learned about how CI-CD pipelines work and how to get a website on the cloud through Kubernetes. Putting 
+                    In this project, I learned about how CI/CD pipelines work and how to get a website on the cloud through Kubernetes. Putting 
                     my home lab server's metrics online also taught me about how backend services reach the frontend securely. I learned about
                     containers, container orchestration and deployment of a project. 
-                    Every part of deploying the website with Kubernetes from Github Pages was a difficult learning experience, but the
+                    Every part of deploying the website with Kubernetes from GitHub Pages was a difficult learning experience, but the
                     most difficult part for me was getting my Proxmox metrics securely. By making sure that the cluster and the home lab are on
                     the Tailscale network, this prevents an attacker from making calls to the backend arbitrarily. 
                 </p>

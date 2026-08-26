@@ -23,6 +23,7 @@ the CI/CD pipeline, and how modern web infrastructure is maintained.
 | Orchestration  | Kubernetes on Linode (LKE) — 2 replicas, rolling updates |
 | TLS / Ingress  | nginx ingress controller + cert-manager                  |
 | CI/CD          | GitHub Actions                                           |
+| IaC            | Terraform — LKE cluster + Firewall                       |
 | Monitoring     | Prometheus + Grafana in home lab, proxied live to website|
 | Networking     | Tailscale between cluster and home lab                   |
 
@@ -35,6 +36,10 @@ the CI/CD pipeline, and how modern web infrastructure is maintained.
   and filesystem stats pulled from Prometheus. The browser never sees PromQL —
   nginx maps a fixed set of metric keys to queries and rejects anything else,
   keeping Prometheus reachable only over the tailnet.
+- **Infrastructure as Code.** The LKE cluster is managed by Terraform, imported from the
+  currently running cluster rather than rebuilt. A default-deny firewall is set up 
+  on the nodes, allowing only internal cluster traffic while public access flows 
+  through the NodeBalancer.
 
 ## Repository layout
 
@@ -48,6 +53,11 @@ the CI/CD pipeline, and how modern web infrastructure is maintained.
 │   └── cisco-labs-practice/
 ├── Dockerfile                               nginx image build
 ├── nginx.conf                               Server config + Prometheus proxy
+├── terraform/                               Infrastructure as code
+│   ├── provider.tf                          Provider + versions
+│   ├── main.tf                              LKE cluster
+│   ├── variables.tf
+│   └── firewall.tf                          
 ├── k8s/                                     Deployment manifests
 │   ├── 01-deployment.yaml
 │   ├── 02-service.yaml
@@ -61,7 +71,7 @@ the CI/CD pipeline, and how modern web infrastructure is maintained.
 
 Every push to main triggers `.github/workflows/deploy.yml`, which builds the
 image, pushes it to GHCR, applies the manifests to LKE, and waits for the rollout 
-to succeed before the run passes.
+to succeed before the run passes. 
 
 ## Projects featured on the site
 
