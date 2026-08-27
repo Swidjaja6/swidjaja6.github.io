@@ -3,13 +3,13 @@ resource "linode_firewall" "lke_nodes" {
   inbound_policy  = "DROP"
   outbound_policy = "ACCEPT"
 
-  # Only allows traffic from cluster's private network
-  inbound {
+  # Only allows traffic from cluster's private network and Tailscale network
+    inbound {
     label    = "intra-cluster-tcp"
     action   = "ACCEPT"
     protocol = "TCP"
     ports    = "1-65535"
-    ipv4     = ["192.168.128.0/17"]
+    ipv4     = ["192.168.128.0/17", "10.2.0.0/16", "10.128.0.0/16"]
   }
 
   inbound {
@@ -17,7 +17,7 @@ resource "linode_firewall" "lke_nodes" {
     action   = "ACCEPT"
     protocol = "UDP"
     ports    = "1-65535"
-    ipv4     = ["192.168.128.0/17"]
+    ipv4     = ["192.168.128.0/17", "10.2.0.0/16", "10.128.0.0/16"]
   }
 
   # Attach to the node pool's instances
