@@ -106,7 +106,7 @@
             } else {
                 statusEl.textContent =
                     "Last update " + now + " - " + failures.length + " of " +
-                    METRICS.length + " failed (" + failures.join("; ") + ")";
+                    METRICS.length + " failed";
             }
         });
     }

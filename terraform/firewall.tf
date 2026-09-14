@@ -19,6 +19,13 @@ resource "linode_firewall" "lke_nodes" {
     ports    = "1-65535"
     ipv4     = ["192.168.128.0/17", "10.2.0.0/16", "10.128.0.0/16"]
   }
+  # Allows IP-in-IP traffic explicitly. Used by LKE for pod networking.
+  inbound {
+    label    = "intra-cluster-ipip"
+    action   = "ACCEPT"
+    protocol = "IPENCAP"
+    ipv4     = ["192.168.128.0/17", "10.2.0.0/16", "10.128.0.0/16"]
+  }
 
   # Attach to the node pool's instances
   linodes = [for n in linode_lke_cluster.website.pool[0].nodes : n.instance_id]
