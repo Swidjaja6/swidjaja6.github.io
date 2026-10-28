@@ -1,0 +1,93 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: exporter-config
+  namespace: monitoring
+data:
+  PVE_HOST: "pve-lab.monitoring.svc.cluster.local"
+  PVE_TOKEN_ID: "website@pam!webtoken"
+  PVE_VERIFY_SSL: "false"
+
+---
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  namespace: monitoring
+  name: custom-pve-exporter
+  labels:
+    app: custom-pve-exporter
+spec:
+  replicas: 1
+  # Must match template.metadata.labels below, and is immutable once created.
+  selector:
+    matchLabels:
+      app: custom-pve-exporter
+
+  strategy:
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+
+  template:
+    metadata:
+      # Service selects pods here
+      labels:
+        app: custom-pve-exporter
+    spec:
+      automountServiceAccountToken: false
+
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        seccompProfile:
+          type: RuntimeDefault
+
+      containers:
+        - name: pve-exporter
+          image: pokerfacer270/pve-exporter:latest
+          imagePullPolicy: Always
+
+          envFrom:
+            - configMapRef:
+                name: exporter-config
+            - secretRef:
+                name: proxtoken
+
+          ports:
+            - name: http
+              containerPort: 9800
+
+          resources:
+            requests:
+              cpu: 10m
+              memory: 32Mi
+            limits:
+              memory: 128Mi
+
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop: ["ALL"]
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  namespace: monitoring
+  annotations:
+    tailscale.com/expose: "true"
+    tailscale.com/hostname: "exporter-monitoring"
+  name: custom-pve-exporter
+  labels:
+    app: custom-pve-exporter
+spec:
+  type: ClusterIP
+  selector:
+    app: custom-pve-exporter
+  ports:
+    - name: http
+      port: 9800
+      targetPort: http

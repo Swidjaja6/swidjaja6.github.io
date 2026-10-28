@@ -1,0 +1,86 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: api-config
+  namespace: monitoring
+data:
+  EXPORTER_URL: "http://custom-pve-exporter.monitoring.svc.cluster.local:9800"
+
+---
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  namespace: monitoring
+  name: homelab-api
+  labels:
+    app: homelab-api
+spec:
+  replicas: 1
+  # Must match template.metadata.labels below, and is immutable once created.
+  selector:
+    matchLabels:
+      app: homelab-api
+
+  strategy:
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+
+  template:
+    metadata:
+      # Service selects pods here
+      labels:
+        app: homelab-api
+    spec:
+      automountServiceAccountToken: false
+
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        seccompProfile:
+          type: RuntimeDefault
+
+      containers:
+        - name: homelab-api
+          image: pokerfacer270/homelab-api:latest
+          imagePullPolicy: Always
+
+          envFrom:
+            - configMapRef:
+                name: api-config
+
+          ports:
+            - name: http
+              containerPort: 8000
+
+          resources:
+            requests:
+              cpu: 10m
+              memory: 32Mi
+            limits:
+              memory: 128Mi
+
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop: ["ALL"]
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  namespace: monitoring
+  name: homelab-api
+  labels:
+    app: homelab-api
+spec:
+  type: ClusterIP
+  selector:
+    app: homelab-api
+  ports:
+    - name: http
+      port: 8000
+      targetPort: http
