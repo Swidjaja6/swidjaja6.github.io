@@ -1,17 +1,14 @@
 (function () {
-    // Same-origin proxy defined in nginx.conf. The browser never sees PromQL:
-    // it sends a key, and nginx's map turns that into a fixed query. A key
-    // that isn't in the map returns 404, so these ids must match exactly.
-    var PROM_PROXY = "/prom/query";
+    var API_PROXY = "/summary";
 
     var METRICS = [
-        { id: "targets_up",   label: "Prometheus Targets Up",   unit: "",  decimals: 0 },
-        { id: "node_cpu",     label: "Node CPU Usage",          unit: "%", decimals: 1 },
-        { id: "node_mem",     label: "Node Memory Used",        unit: "%", decimals: 1 },
-        { id: "node_fs_root", label: "Filesystem Usage (root)", unit: "%", decimals: 1 }
+        { id: "running_vms",   label: "Running VMs",   unit: "",  decimals: 0 },
+        { id: "cpu_computed",     label: "CPU Usage",          unit: "%", decimals: 1 },
+        { id: "memory_used",     label: "Memory Usage",        unit: " GiB", decimals: 1 },
+        { id: "storage_used", label: "Storage Used", unit: " GiB", decimals: 1 }
     ];
 
-    var REFRESH_INTERVAL_MS = 15000;
+    var REFRESH_INTERVAL_MS = 30000;
     var REQUEST_TIMEOUT_MS = 5000;
 
     var cardsContainer = document.getElementById("metrics-cards");
@@ -21,6 +18,7 @@
     var timer = null;
     var firstLoad = true;
 
+    // Creates cards for each metric
     METRICS.forEach(function (m, i) {
         var col = document.createElement("div");
         col.className = "col-md-3 col-sm-6";
@@ -45,76 +43,49 @@
         );
     }
 
-    function fetchMetric(m, i) {
-        var url = PROM_PROXY + "?metric=" + encodeURIComponent(m.id);
-        var el = document.getElementById("metric-value-" + i);
-
-        return fetchWithTimeout(url)
+    function fetchSummary() {
+        return fetchWithTimeout(API_PROXY)
             .then(function (res) {
-                if (!res.ok) {
-                    // 404 = key missing from the nginx map (typo in this file).
-                    // 502/504 = Prometheus unreachable. 503 = rate limited.
-                    throw new Error(m.id + ": HTTP " + res.status);
-                }
+                // 503 = no data, 429 = rate limited
+                if (!res.ok) throw new Error("HTTP " + res.status);
                 return res.json();
             })
             .then(function (data) {
-                if (!data || data.status !== "success") {
-                    throw new Error(m.id + ": " + ((data && data.error) || "bad response"));
-                }
+                METRICS.forEach(function (m, i) {
+                    var el = document.getElementById("metric-value-" + i);
+                    var value = data[m.id];
 
-                var result = data.data && data.data.result;
-                if (!result || result.length === 0) {
-                    el.textContent = "n/a";
-                    return;
-                }
+                    if (m.id === "storage_used") {
+                        value = value / (1024 ** 3); // Convert bytes to GiB
+                    }
 
-                // Most of these queries aggregate server-side and return one
-                // series; averaging is the fallback when a query spans several.
-                var values = result
-                    .map(function (r) { return parseFloat(r.value[1]); })
-                    .filter(function (v) { return isFinite(v); });
-
-                if (values.length === 0) {
-                    el.textContent = "n/a";
-                    return;
-                }
-
-                var avg = values.reduce(function (a, b) { return a + b; }, 0) / values.length;
-                el.textContent = avg.toFixed(m.decimals) + m.unit;
+                    el.textContent = value.toFixed(m.decimals) + m.unit;
+                });
             })
             .catch(function (err) {
-                el.textContent = "error";
-                throw err;
+                // (3) set every card to "error"
+                METRICS.forEach(function (m, i) {
+                    var el = document.getElementById("metric-value-" + i);
+                    el.textContent = "error";
+                });
+                throw err;   // pass the failure on so refreshAll can report it
             });
     }
 
     function refreshAll() {
         if (firstLoad && statusEl) statusEl.textContent = "Loading...";
 
-        Promise.allSettled(METRICS.map(fetchMetric)).then(function (results) {
-            firstLoad = false;
-            if (!statusEl) return;
-
-            var failures = results
-                .filter(function (r) { return r.status === "rejected"; })
-                .map(function (r) { return r.reason && r.reason.message; });
-
-            var now = new Date().toLocaleTimeString();
-            if (failures.length === 0) {
-                statusEl.textContent = "Last updated " + now;
-            } else {
-                statusEl.textContent =
-                    "Last update " + now + " - " + failures.length + " of " +
-                    METRICS.length + " failed";
-            }
-        });
+        fetchSummary()
+        .then(function () {
+            statusEl.textContent = "Last updated " + new Date().toLocaleTimeString();
+        })
+        .catch(function () {
+            statusEl.textContent = "Last update failed " + new Date().toLocaleTimeString();
+        })
+        .finally(function () { firstLoad = false; });
     }
 
-    // Polling every 15s in a background tab is pure waste, and every visitor
-    // doing it adds load to a home server behind a 2r/s rate limit. Pause when
-    // the tab is hidden, and refresh immediately on return so the numbers
-    // aren't stale when the page comes back into view.
+
     function startPolling() {
         if (timer === null) timer = setInterval(refreshAll, REFRESH_INTERVAL_MS);
     }
