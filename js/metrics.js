@@ -55,10 +55,6 @@
                     var el = document.getElementById("metric-value-" + i);
                     var value = data[m.id];
 
-                    if (m.id === "storage_used") {
-                        value = value / (1024 ** 3); // Convert bytes to GiB
-                    }
-
                     el.textContent = value.toFixed(m.decimals) + m.unit;
                 });
             })

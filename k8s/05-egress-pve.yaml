@@ -11,8 +11,5 @@ spec:
   type: ExternalName
   externalName: placeholder # Rewritten by the operator to a CNAME pointing at proxy pod
   ports:
-    # Node-exporter instance listens on port 9100 by default
-    - name: node-exporter
-      port: 9100
     - name: pve-api
       port: 8006
