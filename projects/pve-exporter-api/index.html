@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+<!-- Basic -->
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+<!-- Mobile Metas -->
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<!-- Site Metas -->
+<title>Sean's Lab - Custom PVE Exporter and API</title>
+<meta name="description" content="Writing a custom Prometheus exporter for Proxmox VE and a custom API to query the metrics
+from the exporter to my website.">
+<meta name="author" content="Sean Widjaja">
+
+<!-- Site Icons -->
+<link rel="shortcut icon" href="/images/wifi-router.ico" type="image/x-icon" />
+<link rel="apple-touch-icon" href="/images/wifi-router.png">
+
+<!-- Bootstrap CSS -->
+<link rel="stylesheet" href="/css/bootstrap.min.css">
+<!-- Site CSS -->
+<link rel="stylesheet" href="/css/style.css">
+<!-- Responsive CSS -->
+<link rel="stylesheet" href="/css/responsive.css">
+<!-- Custom CSS -->
+<link rel="stylesheet" href="/css/custom.css">
+
+<script src="/js/modernizr.js"></script> <!-- Modernizr -->
+
+<!--[if lt IE 9]>
+    <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+    <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+</head>
+
+<body id="page-top">
+
+    <!-- LOADER -->
+    <div id="preloader">
+        <div class="loader">
+            <span></span>
+            <span></span>
+            <span></span>
+            <span></span>
+        </div>
+    </div><!-- end loader -->
+    <!-- END LOADER -->
+
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark fixed-top" id="mainNav">
+        <div class="container">
+            <a class="navbar-brand js-scroll-trigger" href="/">
+                <img class="img-fluid" src="/images/logo.png" alt="Sean's Lab home" />
+            </a>
+            <button class="navbar-toggler navbar-toggler-right" type="button" data-toggle="collapse"
+                data-target="#navbarResponsive" aria-controls="navbarResponsive" aria-expanded="false"
+                aria-label="Toggle navigation">
+                Menu
+                <i class="fa fa-bars"></i>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarResponsive">
+                <ul class="navbar-nav text-uppercase ml-auto">
+                    <li class="nav-item">
+                        <a class="nav-link js-scroll-trigger" href="/">Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link js-scroll-trigger" href="/#about">About Me</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link js-scroll-trigger" href="/#certifications">Certifications</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link js-scroll-trigger" href="/projects/">Projects</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link js-scroll-trigger" href="/#contact">Contact Me</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div id="home" class="ct-header ct-header--slider ct-slick-custom-dots">
+        <div class="ct-slick-homepage" data-arrows="true" data-autoplay="false">
+            <div class="ct-header tablex item" data-background="/uploads/banner.jpg">
+                <div class="ct-u-display-tablex">
+                    <div class="inner">
+                        <div class="container">
+                            <div class="row">
+                                <div class="col-md-8 col-lg-8 slider-inner">
+                                    <h1 class="big animated">Custom PVE Exporter and API</h1>
+                                    <p class="animated">Custom Prometheus exporter for querying Proxmox VE metrics and API to bring those metrics to my website</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div><!-- .ct-slick-homepage -->
+    </div><!-- .ct-header -->
+    
+    <div id="project-description" class="section lb">
+        <div class="container">
+            <div class="section-title text-center project-text">
+                <h3>Project Overview</h3>
+                <p>
+                    My <a href="/projects/home-lab-server/">Home Lab</a> page shows live metrics from my Proxmox server. However, there were problems with my 
+                    implementation, particularly from the kube-prometheus-stack running on my cluster. 
+                    This resulted in high CPU usage reaching 100% of the capacity on the node where prometheus was running. 
+                    I wrote a custom Proxmox VE exporter to query only the necessary metrics from my server, and I wrote a custom API
+                    that polls those metrics from my exporter, does some calculations, and returns the data to my website. This way,
+                    I have a more efficient way to get metrics from my server, and now having removed Prometheus on my cluster,
+                    it uses less CPU, down to around 20%, on my cluster node.
+                </p>
+            </div>
+        </div>
+        <div class="container">
+            <div class="section-title text-center project-text">
+                <h3>Objectives</h3>
+                <ul>
+                    <li>Write a Proxmox exporter that queries the Proxmox API with a read-only token</li>
+                    <li>Write an API to poll exporter metrics and return the data to the website</li>
+                    <li>Create CI/CD pipelines to automate deployment and test suites for the exporter and API</li>
+                    <li>Edit website to display the fetched metrics</li>
+                </ul>
+            </div>
+        </div>
+        <div class="container">
+            <div class="section-title text-center project-text">
+                <h3>The Process</h3>
+                <h4>Step 1: Custom Proxmox VE exporter</h4>
+                    <p>
+                        I wrote a custom Proxmox VE exporter in Python that queries the Proxmox API with a read-only token. 
+                        I could have used the community version of the Proxmox VE exporter, but it exports more than what I needed. I use this 
+                        exporter mainly to get a select few metrics from my server to display on my Grafana dashboard that I use locally. I decided to 
+                        use the same exporter and run it on my cluster. 
+                    </p>
+                <h4>Step 2: Write an API to get metrics from the exporter</h4>
+                    <p>
+                        In my previous setup, I was using kube-prometheus-stack installed with Helm package manager and node_exporter. 
+                        There were two problems with this. The first was that node_exporter was using the wrong source of data. Node_exporter only 
+                        sees the host machine running Proxmox, rather than the VMs that are running on it, so I was getting metrics about the server CPU and memory,
+                        but not the VMs running or storage pools. The second was that with the instance of kube-prometheus-stack, it was too heavy for my needs to
+                        show only a few metrics on my website. It was regularly using 100% of the CPU on the node where it was running. 
+                    </p>
+                    <p>
+                        Rather than querying the exporter directly from my website, I wrote a custom API that queries the exporter, calculates the CPU, 
+                        memory, and storage usage, and returns the data in JSON format. My website displays it on my Home lab page. 
+                        I wrote the API also with Python using FastAPI framework. It queries the exporter every 30 seconds, 
+                        calculates the CPU, memory, and storage usage, and returns the JSON from a cache, so visitor requests don't reach my lab. 
+                    </p>
+
+                <figure>
+                    <img src="/images/api-screenshot.png" class="img-fluid"
+                        alt="API screenshot showing my server's VMs, CPU, memory, and storage usage">
+                    <figcaption>
+                        API endpoint visualizing my Proxmox host's VMs, CPU, memory, and storage usage, collected by my custom PVE-exporter
+                    </figcaption>
+                </figure>
+                <h4>Step 3: CI pipelines and test suites</h4>
+                    <p>
+                        I created a CI pipeline for both the exporter and the API using GitHub Actions. On every push to main, each pipeline runs its test
+                        suite. If every test passes, it builds a Docker image and pushes it to Docker Hub, tagged with both the commit SHA and latest.
+                        Once a new image is published, I roll it out to my cluster, which pulls the latest image. The exporter's tests use a mocked Proxmox API
+                        to check that metrics are exported correctly, and that errors like failed logins, timeouts, server errors, or a bad response body are 
+                        reported as a failed scrape instead of crashing the exporter. The API's tests use a saved sample of the exporter's output to check that 
+                        it calculates the CPU, memory, and storage usage correctly, rejects incomplete or inconsistent data, and returns a 503 when no data is 
+                        available. The API's pipeline also runs its tests on pull requests, and Dependabot keeps its Docker base image up to date.
+                    </p>
+                <h4>Step 4: Edit website and display metrics</h4>
+                    <p>
+                        Once I got the exporter and API working on my cluster, I edited my website to display the new metrics from the API. Now what shows
+                        on the <a href="/projects/home-lab-server/">home lab</a> page at the bottom is the running VMs, CPU, memory, and storage usage. 
+                        This involved editing the frontend Nginx configuration to act as a reverse proxy, so the browser requests /summary from my own
+                        site and Nginx forwards it to the API inside the cluster. The API itself is never exposed to the internet. Some things that improved
+                        with this version is that the page makes 1 request every 30 seconds rather than 4 requests every 15 seconds, and the API does
+                        the calculations rather than the JavaScript on the page. 
+                    </p>
+            </div>
+        </div>
+        <div class="container">
+            <div class="section-title text-center project-text">
+                <h3>Challenges and Solutions</h3>
+                <h4>Issue 1: Kube-prometheus-stack pod and heavy CPU usage</h4>
+                    <p>
+                        A major improvement solved with this project. Now instead of kube-prometheus-stack scraping metrics from my Proxmox server, 
+                        the custom exporter does it. The API queries the exporter and calculates the CPU, memory, and storage usage. This way, 
+                        the API can return a single JSON response to my website every 30 seconds, rather than kube-prometheus-stack scraping metrics every
+                        30 seconds. This reduced the CPU usage on my cluster node from 100% to around 20%.
+                    </p>
+                <h4>Issue 2: Broken deploys</h4>
+                    <p>
+                        A recent change I made to my API is that I added calculations for storage usage. As I was writing the Nginx configuration and
+                        front-end JavaScript to display the new metrics, I realized I didn't write calculations for storage usage in the API. 
+                        I added the calculation to my API and I attempted to roll it out to my cluster, but it failed my unit tests in the CI pipeline
+                        because the test that checks the storage calculation was not updated. Because of the CI pipeline, it did not deploy the
+                        image to my Docker Hub. I edited the tests to account for the new calculation for storage and the pipeline passed.
+                        I rolled out the new image to my cluster and it worked as expected. 
+                    </p>
+            </div>
+        </div>
+        <div class="container">
+            <div class="section-title text-center project-text">
+                <h3>What's Next</h3>
+                <p>
+                    Currently, the rollout of my pve-exporter and API only works if I manually deploy them to my cluster. I 
+                    plan to create another workflow that automates that process. I would need to look into what happens if a rollout fails because 
+                    a new image is broken, and also how to roll back to a previous image if needed. 
+                </p>
+            </div>
+        </div>
+        <div class="container">
+            <div class="section-title text-center project-text">
+                <h3>What I Learned</h3>
+                <p>
+                    Just to show a few numbers from my server, I ran a full monitoring stack on my cluster with kube-prometheus-stack and node_exporter 
+                    when I did not need to. By watching my cluster, I figured out it was the kube-prometheus-stack pod that was using up my CPU wherever
+                    the pod was running on, and wherever it moved to next. Once I figured out that problem, I figured out a way to get the metrics I needed
+                    without having to run the monitoring stack by creating my own exporter and API.
+                </p>
+                <p>
+                    In addition to learning how to write an exporter and an API in a practical setting, I
+                    learned how to create my own CI pipelines to test, build, and publish. With that, I had to make decisions not just about
+                    how my application would work, but how to handle deployments. When I changed my API to add storage usage calculations, 
+                    I had to make sure that the tests were updated to account for the new calculation. Without the changes to the tests, my CI pipeline
+                    stops the deployment of the new image to Docker Hub. 
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <div class="copyrights">
+        <div class="container">
+            <div class="footer-distributed">
+                <div class="footer-left">
+                    <p class="footer-company-name">&copy; 2026 Sean Widjaja &mdash; Design By :
+                        <a href="https://html.design/">html design</a>
+                    </p>
+                </div>
+            </div>
+        </div><!-- end container -->
+    </div><!-- end copyrights -->
+
+    <a href="#" id="scroll-to-top" class="dmtop global-radius"><i class="fa fa-angle-up"></i></a>
+
+    <!-- ALL JS FILES -->
+    <script src="/js/all.js"></script>
+    <script src="/js/jquery.easing.1.3.js"></script>
+    <script src="/js/parallaxie.js"></script>
+    <script src="/js/slick.min.js"></script>
+    <script src="/js/animated-slider.js"></script>
+    <script src="/js/jqBootstrapValidation.js"></script>
+    <script src="/js/custom.js"></script>
+
+</body>
+
+</html>

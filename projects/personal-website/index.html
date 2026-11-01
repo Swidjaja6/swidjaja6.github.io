@@ -115,10 +115,9 @@ with a GitHub Actions deploy pipeline and live Prometheus metrics from my home l
                 </p>
                 <p>
                     The site is now an Nginx container running on a Kubernetes cluster in Linode, built and deployed by a GitHub Actions 
-                    pipeline on every push to main. A Prometheus instance in the cluster scrapes both the cluster itself and my Proxmox home
-                    lab server, which sits behind Tailscale rather than being exposed to the internet. The page you are on queries 
-                    Prometheus over its HTTP API and renders those numbers live — the results are on my 
-                    <a href="/projects/home-lab-server/">Home Lab Server</a> project page.
+                    pipeline on every push to main. I created a custom Proxmox VE exporter and a custom API that runs in my cluster
+                    that queries and renders those numbers live with the results on my <a href="/projects/home-lab-server/">Home Lab Server</a> 
+                    project page.
                 </p>
             </div>
         </div>

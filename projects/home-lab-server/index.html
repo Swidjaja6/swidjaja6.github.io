@@ -161,15 +161,15 @@
                         On one of my host machines, I set up several Docker containers in a docker-compose file. These included images of Prometheus 
                         PVE Exporter to pull data from my server via API, Prometheus itself to store data, and Grafana to visualize the data in a readable format. 
                         Below is a screenshot of one of my Grafana dashboards that shows my server's metrics. In addition, at the bottom of this page, I have some of
-                        my server's metrics in real time queried via PromQL (Prometheus Query Language).
+                        my server's metrics in real time queried by a custom Proxmox VE exporter and a custom API.
                     </p>
 
                 <figure>
                     <img src="/images/Grafana.png" class="img-fluid"
                         alt="Grafana dashboard showing Proxmox CPU, memory, and storage usage over time">
                     <figcaption>
-                        A Grafana dashboard visualizing my Proxmox host's CPU, memory, and storage metrics,
-                        scraped by Prometheus from PVE exporter.
+                        A Grafana dashboard visualizing my Proxmox host's running VMs, CPU, and memory
+                        scraped by my custom PVE exporter. Machine names are omitted purposefully. 
                     </figcaption>
                 </figure>
                 <h4>Step 4: Automating server management with Ansible</h4>

@@ -37,7 +37,7 @@ spec:
 
       containers:
         - name: website
-          # Placeholder — CI rewrites this to the commit SHA on each deploy
+          # Placeholder. CI rewrites this to the commit SHA on each deploy
           image: ghcr.io/swidjaja6/personal-website:latest
           imagePullPolicy: IfNotPresent
 
